@@ -1,90 +1,63 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Constants from 'expo-constants'
 
-let timer = null
-let ss = 0
-let mm = 0
-let hh = 0
-
 export default function App() {
 
-  const [numero, setNumero] = useState('00:00:00')
-  const [botao, setBotao] = useState('VAI')
-  const [ultimo, setUltimo] = useState(null)
+  const [quantPessoas, setQuantPessoas] = useState(0)
+  let limitePessoa = 10
 
-  function vai() {
-    if (timer !== null) {
-      clearInterval(timer)
-      timer = null
-      setBotao('VAI')
-    } else {
-      timer = setInterval(() => {
-        ss++
-
-        if (ss === 60) {
-          mm++
-          ss = 0
-        }
-
-        if (mm === 60) {
-          mm = 0
-          hh++
-        }
-
-        let format = `${hh < 10 ? `0${hh}` : hh}:${mm < 10 ? `0${mm}` : mm}:${ss < 10 ? `0${ss}` : ss}`
-
-        setNumero(format)
-
-      }, 1000)
-
-      setBotao('PARAR')
+  function adicionar() {
+    if (quantPessoas < limitePessoa) {
+      setQuantPessoas(quantPessoas + 1)
     }
-
   }
 
-  function limpar() {
-    if (timer !== null) {
-      clearInterval(timer)
-      timer = null
+  function remover() {
+    if (quantPessoas > 0) {
+      setQuantPessoas(quantPessoas - 1)
     }
-
-    setUltimo(numero)
-
-    setNumero('00:00:00')
-    ss = 0;
-    mm = 0;
-    hh = 0;
-
-    setBotao('VAI')
   }
 
   return (
     <View style={styles.container}>
       <StatusBar />
 
-      <Image
-        source={require('./src/crono.png')}
-      />
+      <Text style={styles.textPessoas}>Pessoas no restaurante:</Text>
 
-      <Text style={styles.timer}> {numero} </Text>
+      <View style={styles.contadorArea}>
+        <Text style={styles.contadorText}> {quantPessoas} </Text>
+      </View>
+
+      {quantPessoas >= limitePessoa && (
+        <Text style={styles.lmtPessoasText}>
+          Restaurante está no seu limite de pessoas.
+        </Text>
+      )}
 
       <View style={styles.btnArea}>
-        <TouchableOpacity style={styles.btn} onPress={vai}>
-          <Text style={styles.btnTexto}> {botao} </Text>
-        </TouchableOpacity>
+        <Pressable
+          disabled={quantPessoas === limitePessoa}
+          style={[
+            styles.botao,
+            quantPessoas === limitePessoa && { backgroundColor: '#DDD' }
+          ]}
+          onPress={adicionar}>
+          <Text style={styles.btnText}>Adicionar</Text>
+        </Pressable>
 
-        <TouchableOpacity style={styles.btn} onPress={limpar}>
-          <Text style={styles.btnTexto}>LIMPAR</Text>
-        </TouchableOpacity>
+        <Pressable
+          disabled={quantPessoas === 0}
+          style={[
+            styles.botao,
+            quantPessoas === 0 && { backgroundColor: '#DDD' }
+          ]}
+          onPress={remover}>
+          <Text style={styles.btnText}>Remover</Text>
+        </Pressable>
       </View>
 
-      <View style={styles.areaUltima}>
-        <Text style={styles.textoCorrida}>
-          {ultimo ? `Último tempo: ${ultimo}` : ''}
-        </Text>
-      </View>
     </View>
   );
 }
@@ -94,40 +67,42 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: Constants.statusBarHeight,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#00aeef'
+    justifyContent: 'center'
   },
-  timer: {
-    marginTop: -160,
-    fontSize: 45,
-    fontWeight: 'bold',
-    color: '#fff'
+  textPessoas: {
+    fontSize: 20
   },
-  btnArea: {
-    flexDirection: 'row',
-    marginTop: 130,
-    height: 40
-  },
-  btn: {
-    flex: 1,
+  contadorArea: {
+    backgroundColor: 'black',
+    padding: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    height: 40,
-    margin: 17,
-    borderRadius: 9
+    margin: 15,
+    borderRadius: 10
   },
-  btnTexto: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#00aeef'
-  },
-  areaUltima: {
-    marginTop: 40
-  },
-  textoCorrida: {
-    fontSize: 23,
+  contadorText: {
     color: '#fff',
-    fontStyle: 'italic'
+    fontSize: 30
+  },
+  lmtPessoasText: {
+    backgroundColor: '#F9B23A',
+    borderRadius: 5,
+    padding: 2,
+    fontSize: 16
+  },
+  btnArea: {
+    flexDirection: 'row'
+  },
+  botao: {
+    backgroundColor: '#1379F8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    padding: 10,
+    borderRadius: 6
+  },
+  btnText: {
+    fontSize: 18,
+    color: '#fff'
   }
 });
